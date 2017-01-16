@@ -15,11 +15,26 @@ var controller = Botkit.websocketbot({
 
 var bot = controller.spawn({});
 
-controller.setupWebserver(process.env.port || 3000, function (err, webserver) {
-    controller.createWebhookEndpoints(webserver, bot, function () {
-        console.log('*** Hell yeah ... i\'m online :)');
-    });
-});
+var express = require('express');
+var bodyParser = require('body-parser');
+var app = express();
+
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({
+    extended: true
+}));
+require('express-ws')(app);
+
+
+app.listen(process.env.port || 3000, '0.0.0.0', function () {
+
+    controller.setupWebserver(process.env.port || 3000, function (err, webserver) {
+        controller.createWebhookEndpoints(webserver, bot, function () {
+            console.log('*** Hell yeah ... i\'m online :)');
+        });
+    }, app);
+
+})
 
 controller.hears(['bonjour'], 'message_received', function (bot, message) {
     bot.startConversation(message, function (err, convo) {
@@ -47,7 +62,7 @@ controller.hears(['bonjour'], 'message_received', function (bot, message) {
             'key': 'nickname'
         });
 
-        convo.on('end', function(convo) {
+        convo.on('end', function (convo) {
             if (convo.status == 'completed') {
                 bot.reply(message, 'OK! Je met à jour mon dossier...');
 
