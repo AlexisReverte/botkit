@@ -10,7 +10,8 @@ function sendWithoutChannelOpened(message) {
 
 var controller = Botkit.websocketbot({
     debug: true,
-    sendWithoutChannelOpened: sendWithoutChannelOpened
+    sendWithoutChannelOpened: sendWithoutChannelOpened,
+    storage: require('./lib/storage/mongo_storage')()
 });
 
 var bot = controller.spawn({});
